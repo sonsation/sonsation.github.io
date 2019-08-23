@@ -1,0 +1,132 @@
+---
+title: "코틀린의 smart cast"
+date: 2019-08-21 00:34:28 -0400
+categories: kotilin
+---
+
+# 스트림함수
+
+자바8에서는 리스트나 맵과 같은 컬렉션에 포함된 자료들을 손쉽게 다룰 수 있도록 스트림(stream)기능을 제공한다.
+코틀린 표준 라이브러리에서 제공하는 함수들은 자방 8의 스트림 기능을 사용하진 않지만, 통상적으로 '스트림함수'라고 부른다.
+
+```markdown
+# map()함수에서는 컬렉션 내 인자를 다른 값 혹은 타임으로 변환할 때 사용한다.
+val cities = listOf("Seoul", "Newyork", "London")
+cities.map { city -> city.toUpperCase() }.forEach { println(it) }
+//출력결과
+SEOUL
+NEWYORK
+LONDON
+
+# mapIndexed()함수를 사용하면 컬렉션 내 포함된 인자의 인덱스 값을 변환 함수 내에서 사용할 수 있다
+val numers = 1..10
+numbers.mapIndexed { index, number -> index * number }.forEach { print(it) }
+//출력 결과
+0 1 4 9 16 25 ...
+
+# mapNotNull()은 컬렉션 내 각 인자를 변환함과 동시에, 변환한 결과가 널 값인 경우 이를 무시한다.
+val cities = listonf {"Seoul", "Newyork", "London"}
+cities.mapNotNull { city -> if(city.lengt == 5) city else null }.forEach { println(it) }
+//출력 결과
+Seoul
+
+# flatMap() 함수는 map()함수와 유사하게 컬렉션 내 인자를 다른 형태로 변환해주는 역할을 한다. 하지만 map() 함수와 달리 변환 함수의 반환형이 interable이다.
+val number = 1..5
+numbers.flatMap { number -> 1..number }.forEach { print(it) }
+//출력 결과
+1 1 2 1 2 3 1 2 3 4 1 2 3 4 5
+
+# groupBy()함수는 컬렉션 내 인자들을 지정한 기준에 따라 분류하며, 각 인자들의 리스트를 포함하는 맵 형태로 결과를 반환한다.
+val cities = listonf {"Seoul", "Newyork", "London"}
+cities.groupBy { city -> if(city.length == 5) "A" else "B" }.forEach { key, value -> println("$key, $value") }
+//출력 결과
+A, Seoul
+B, Nework
+B, London
+
+# filter()함수는 컬렉션 내 인자들 중 주어진 조건과 일치하는 인자만 걸러주는 역할을 한다.
+val cities = listonf {"Seoul", "Newyork", "London"}
+cities.filter { city -> city.length <= 5 }.forEach { println(it) }
+//출력 결과
+Seoul
+
+# take() 함수의 인자로 받은 개수만큼만을 인자로 갖는 리스트를 반환
+cities.take(1).forEach { println(it) }
+//출력결과
+Seoul
+
+# takeLast() take()함수와 반대
+cities.takeLast(1).forEach { println(it) }
+//출력결과
+London
+
+# takeWhile() 첫 번째 인바부터 시작하여 주어진 조건을 만족하는 인자까지를 포함하는 리스트를 반환한다.
+cities.takeWhile { city -> city <= 5 }.forEach { println(it) }
+// 출력 결과
+Seoul
+
+# takeLastWhile() takeWhile()함수와 반대
+cities.takeLastWhile { city -> city >= 5}.forEach { println(it) }
+// 출력 결과
+없음
+
+# drop()함수는 take()함수와 반대의 역할을 하며, 조건을 만족하는 하목을 컬렉션에서 제외한 결과를 반환한다.
+# drop(), dropLast(), dropWhile(), dropLastWhile() 존재
+cities.drop(1).forEach { println(it) }
+//출력결과
+Newyork
+London
+
+# first() 함수는 컬렉션 내 첫번째 인자를 반환한다. 조건을 사용하여 조건을 만족하는 첫번쨰 인자를 반환하는 것도 가능
+# 조건을 만족하는 인자가 없는 경우 NoSuchElementException 예외를 발생, firstorNull() 함수를 사용하면 예외 대신 널 값을 반환 한다.
+println(cities.first())
+println(cities.last())
+println(cities.first { city -> city.lenth == 5 })
+println(cities.firstOrNull { city -> city.isEmpty() })
+//출력결과
+Seoul
+London
+Seoul
+null
+
+# distinct() 함수는 컬렉션 내에 포함된 항목 중 중복된 항목을 거러낸 결과를 반환한다.
+# distinctBy() 함수를 사용하면 비교에 사용할 조건을 직접 설정 할 수 있다.
+cities.distinct().forEach { println(it) }
+//출력결과
+Seoul
+Newyork
+London
+
+cities.distinctBy { city -> city.contains("e") }.forEach { println(it) }
+//출력결과
+Seoul
+London
+
+# zip() 함수는 두 컬렉션 내의 자료들을 조합하여 새로운 자료를 만들떄 사용된다.
+# 두 컬렉션 간 자료의 개수가 달라도 사용하 수 있으며, 이 경우에 반환되는 컬렉션의 자료수는 조합에 사용하는 컬렉션의 수 중 더 적은 쪽을 따라간다.
+# 기본값으로 조합된 결과를 Pair로 만들어주며, 원하는 경우 조합 규칙을 사용자가 정의할 수 있다.
+
+# JoinToString() 함수는 컬렉 션 내 자료를 문자열 형태로 변한함과 동시에, 이를 조합하여 하나의 문자열로 생성한다.
+println(cities.joinToString())
+println(cities.joinToString(" "))
+println(cities.joinToString("|"))
+//출력결과
+Seoul, Newyork, London
+Seoul Newyork London
+Seoul|Newyotk|London
+
+# count() 함수는 컬렉션 내 포함된 자료의 개수를 반환하며, 조건식을 추가하며 해당 조건을 만족하는 자료의 개수를 출력한다.
+println(cities.count())
+println(cities.count { city -> city.length == 5 }
+//출력결과
+3
+1
+
+# reduce() 함수는 컬렉션 내 자료들을 모두 합쳐 하나의 값으로 만들어주는 역할을 한다.
+# reduce() 함수는 컬렉션 내 첫번쨰 자료부터 조합을 시작하며, reduceRight() 함수는 컬렉션 내 마지막 자료부터 시작한다
+```
+
+
+
+
+ 
