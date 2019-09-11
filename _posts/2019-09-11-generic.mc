@@ -71,6 +71,25 @@ fun main() {
 
 위 예제에서는 T는 Comparable<T> 상한을 갖는다. 즉 max()를 사용할때의 인자는 Comparable을 구현하고 있어야 한다는 의미가 된다.
 
+```markdown
+
+fun <T> ensureTrailingPeriod(seq: T)
+  where T: CharSequence, T: Appendable {
+  
+  if (!seq.endWith('.')) {
+    seq.append('.')
+  }
+}
+
+fun main() {
+  val helloWorld = StirngBuilder("Hello World")
+  ensureTrailingPeriod(helloWorld)
+  println(helloWorld)
+}
+```
+
+두개의 제약을 하는 경우 where 연산자를 씁니다. 이때의 함수 타입은 나열된 타입들은 전부 만족해야 한다.
+
 
 
  
